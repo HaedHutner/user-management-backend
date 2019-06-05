@@ -4,7 +4,6 @@ import dev.mvvasilev.dto.RegisterUserDTO;
 import dev.mvvasilev.dto.UpdateUserDTO;
 import dev.mvvasilev.dto.UserDTO;
 import dev.mvvasilev.facade.UserFacade;
-import org.assertj.core.api.LocalDateAssert;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +18,7 @@ import java.time.Month;
 @RunWith(MockitoJUnitRunner.class)
 public class UserControllerTest {
 
-    private static final Long USER_ID = 23L;
+    private static final Long USER_ID = 123L;
 
     private UserController userController;
 
@@ -61,6 +60,7 @@ public class UserControllerTest {
         expectedUserDTO.setEmail("fake_email@fake_email.com");
         expectedUserDTO.setDateOfBirth(LocalDate.of(1997, Month.DECEMBER, 6));
 
+        updatedExpectedDTO.setId(USER_ID);
         updatedExpectedDTO.setEmail(updateUserDTO.getEmail());
         updatedExpectedDTO.setFirstName(updateUserDTO.getFirstName());
         updatedExpectedDTO.setLastName(updateUserDTO.getLastName());

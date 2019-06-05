@@ -7,12 +7,9 @@ import dev.mvvasilev.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 /**
- * The purpose of the UserFacade is to act as the connecting point between Controllers and Services.
- * A Facade should only work with DTOs and other raw inputs from controllers, and any deeper business-related logic is delegated to service methods.
- * Facades should not access the database directly, instead they should be relying on services for database access.
- *
  * @author Miroslav Vasilev
  */
 @Component
@@ -29,6 +26,8 @@ public class UserFacade {
     }
 
     public long createUser(RegisterUserDTO registerUserDTO) {
+        Assert.notNull(registerUserDTO, "registerUserDTO cannot be null.");
+
         return userService.createUser(
                 registerUserDTO.getEmail(),
                 registerUserDTO.getRawPassword(),
@@ -38,14 +37,16 @@ public class UserFacade {
         );
     }
 
-    public UserDTO getUserById(Long userId) {
+    public UserDTO getUserById(long userId) {
         return modelMapper.map(
                 userService.getUser(userId),
                 UserDTO.class
         );
     }
 
-    public UserDTO updateUserById(Long userId, UpdateUserDTO updateUserDTO) {
+    public UserDTO updateUserById(long userId, UpdateUserDTO updateUserDTO) {
+        Assert.notNull(updateUserDTO, "updateUserDTO cannot be null.");
+
         return modelMapper.map(
                 userService.updateUser(
                         userId,
@@ -58,7 +59,7 @@ public class UserFacade {
         );
     }
 
-    public void deleteUserById(Long userId) {
-        userService.deleteUserById(userId);
+    public void deleteUserById(long userId) {
+        userService.deleteUser(userId);
     }
 }

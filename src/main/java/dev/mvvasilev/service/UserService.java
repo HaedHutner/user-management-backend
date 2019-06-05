@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDate;
@@ -33,7 +34,7 @@ public class UserService {
     /**
      * Create a new user and store into the database.
      *
-     * @param email       The user's validated email
+     * @param email       The user's email
      * @param rawPassword The user's password
      * @param firstName   The user's first name
      * @param lastName    The user's last name
@@ -63,10 +64,10 @@ public class UserService {
      * @return The user entity
      * @throws UserNotFoundException If no user with the provided id could be found
      */
-    public User getUser(Long id) {
+    public User getUser(long id) {
         Optional<User> userById = userRepository.findById(id);
 
-        if (userById.isEmpty()) {
+        if (!userById.isPresent()) {
             throw new UserNotFoundException("No user with an id of '" + id + "' could be found.");
         }
 
@@ -84,7 +85,7 @@ public class UserService {
      * @param newLastName    The new last name of the user ( optional )
      * @param newDateOfBirth The new date of birth of the user ( optional )
      */
-    public User updateUser(Long id, String newEmail, String newFirstName, String newLastName, LocalDate newDateOfBirth) {
+    public User updateUser(long id, String newEmail, String newFirstName, String newLastName, LocalDate newDateOfBirth) {
         User user = getUser(id);
 
         // When setting the email of the user, must ensure it does not already exist in the database
@@ -92,11 +93,11 @@ public class UserService {
             user.setEmail(newEmail);
         }
 
-        if (ObjectUtils.isEmpty(newFirstName) && !user.getFirstName().equals(newFirstName)) {
+        if (!ObjectUtils.isEmpty(newFirstName) && !user.getFirstName().equals(newFirstName)) {
             user.setFirstName(newFirstName);
         }
 
-        if (ObjectUtils.isEmpty(newLastName) && !user.getLastName().equals(newLastName)) {
+        if (!ObjectUtils.isEmpty(newLastName) && !user.getLastName().equals(newLastName)) {
             user.setLastName(newLastName);
         }
 
@@ -114,11 +115,13 @@ public class UserService {
      *
      * @param userId The id of the user entity which is to be deleted
      */
-    public void deleteUserById(Long userId) {
+    public void deleteUser(Long userId) {
         userRepository.deleteUserById(userId);
     }
 
     private boolean validateEmailDoesNotExist(String email) {
+        Assert.notNull(email, "email cannot be null");
+
         Optional<User> userByEmail = userRepository.getUserByEmail(email);
 
         // If a user with this email already exists, throw an exception.
