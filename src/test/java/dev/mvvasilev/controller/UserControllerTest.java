@@ -11,6 +11,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -92,5 +94,10 @@ public class UserControllerTest {
     @Test
     public void testDeleteUser() {
         userController.deleteUser(USER_ID);
+    }
+
+    @Test
+    public void testQueryUsers() {
+        userController.queryUsers(PageRequest.of(0, 5));
     }
 }

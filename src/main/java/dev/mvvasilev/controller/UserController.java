@@ -5,15 +5,19 @@ import dev.mvvasilev.dto.UpdateUserDTO;
 import dev.mvvasilev.dto.UserDTO;
 import dev.mvvasilev.facade.UserFacade;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Miroslav Vasilev
  */
 @RequestMapping("/api/user")
 @RestController
+@CrossOrigin
 public class UserController {
 
     private UserFacade userFacade;
@@ -28,19 +32,24 @@ public class UserController {
         return userFacade.createUser(registerUserDTO);
     }
 
-    @GetMapping("/get")
-    public UserDTO getUser(@RequestParam Long userId) {
+    @GetMapping("/{userId}")
+    public UserDTO getUser(@PathVariable Long userId) {
         return userFacade.getUserById(userId);
     }
 
-    @PutMapping("/update")
-    public UserDTO updateUser(@RequestParam Long userId, @RequestBody @Valid UpdateUserDTO updateUserDTO) {
+    @PutMapping("/{userId}/update")
+    public UserDTO updateUser(@PathVariable Long userId, @RequestBody @Valid UpdateUserDTO updateUserDTO) {
         return userFacade.updateUserById(userId, updateUserDTO);
     }
 
-    @DeleteMapping("/delete")
-    public void deleteUser(@RequestParam Long userId) {
+    @DeleteMapping("/{userId}/delete")
+    public void deleteUser(@PathVariable Long userId) {
         userFacade.deleteUserById(userId);
+    }
+
+    @GetMapping("/query")
+    public Page<UserDTO> queryUsers(@NotNull Pageable pageable) {
+        return userFacade.getAllUsersPaginated(pageable);
     }
 
 }

@@ -6,6 +6,8 @@ import dev.mvvasilev.dto.UserDTO;
 import dev.mvvasilev.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -61,5 +63,11 @@ public class UserFacade {
 
     public void deleteUserById(long userId) {
         userService.deleteUser(userId);
+    }
+
+    public Page<UserDTO> getAllUsersPaginated(Pageable pageable) {
+        Assert.notNull(pageable, "pageable cannot be null");
+
+        return userService.getUsers(pageable).map((user) -> modelMapper.map(user, UserDTO.class));
     }
 }

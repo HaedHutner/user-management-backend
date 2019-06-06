@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -144,5 +145,10 @@ public class UserFacadeTest {
     @Test
     public void testDeleteUserById() {
         userFacade.deleteUserById(USER_ID);
+    }
+
+    @Test
+    public void testGetAllUsersPaginated() {
+        userFacade.getAllUsersPaginated(PageRequest.of(0, 5));
     }
 }

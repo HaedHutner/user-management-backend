@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
@@ -204,5 +205,10 @@ public class UserServiceTest {
     @Test
     public void testDeleteUser() {
         userService.deleteUser(USER_ID);
+    }
+
+    @Test
+    public void testGetUsers() {
+        userService.getUsers(PageRequest.of(0, 5));
     }
 }

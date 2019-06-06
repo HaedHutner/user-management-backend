@@ -5,6 +5,8 @@ import dev.mvvasilev.exception.UserNotFoundException;
 import dev.mvvasilev.exception.ValidationException;
 import dev.mvvasilev.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -130,5 +132,11 @@ public class UserService {
         }
 
         return true;
+    }
+
+    public Page<User> getUsers(Pageable pageable) {
+        Assert.notNull(pageable, "pageable cannot be null");
+
+        return userRepository.findAll(pageable);
     }
 }
