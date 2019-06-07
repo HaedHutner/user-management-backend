@@ -51,7 +51,11 @@ public class UserService {
 
         user.setFirstName(firstName);
         user.setLastName(lastName);
-        user.setDateOfBirth(dateOfBirth);
+
+        if (validateDateOfBirth(dateOfBirth)) {
+            user.setDateOfBirth(dateOfBirth);
+        }
+
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
 
         user = userRepository.save(user);
@@ -103,7 +107,7 @@ public class UserService {
             user.setLastName(newLastName);
         }
 
-        if (newDateOfBirth != null && !user.getDateOfBirth().equals(newDateOfBirth)) {
+        if (newDateOfBirth != null && !user.getDateOfBirth().equals(newDateOfBirth) && validateDateOfBirth(newDateOfBirth)) {
             user.setDateOfBirth(newDateOfBirth);
         }
 
@@ -121,6 +125,12 @@ public class UserService {
         userRepository.deleteUserById(userId);
     }
 
+    public Page<User> getUsers(Pageable pageable) {
+        Assert.notNull(pageable, "pageable cannot be null");
+
+        return userRepository.findAll(pageable);
+    }
+
     private boolean validateEmailDoesNotExist(String email) {
         Assert.notNull(email, "email cannot be null");
 
@@ -134,9 +144,15 @@ public class UserService {
         return true;
     }
 
-    public Page<User> getUsers(Pageable pageable) {
-        Assert.notNull(pageable, "pageable cannot be null");
+    private boolean validateDateOfBirth(LocalDate date) {
+        Assert.notNull(date, "date cannot be null");
 
-        return userRepository.findAll(pageable);
+        LocalDate currentDate = LocalDate.now();
+
+        if (currentDate.isBefore(date)) {
+            throw new ValidationException("The date of birth cannot be in the future.");
+        }
+
+        return true;
     }
 }

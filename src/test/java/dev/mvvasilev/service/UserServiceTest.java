@@ -102,6 +102,16 @@ public class UserServiceTest {
         userService.createUser(EMAIL, FIRST_NAME, LAST_NAME, PASSWORD, DATE_OF_BIRTH);
     }
 
+    @Test(expected = ValidationException.class)
+    public void testCreateUser_withFutureDateOfBirth() {
+        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(createdUserWithId);
+        Mockito.when(userRepository.getUserByEmail(EMAIL)).thenReturn(Optional.empty());
+
+        LocalDate futureDate = LocalDate.now().plusDays(7);
+
+        userService.createUser(EMAIL, FIRST_NAME, LAST_NAME, PASSWORD, futureDate);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testCreateUser_withNullEmail() {
         userService.createUser(null, FIRST_NAME, LAST_NAME, PASSWORD, DATE_OF_BIRTH);
@@ -185,6 +195,17 @@ public class UserServiceTest {
     }
 
     @Test(expected = ValidationException.class)
+    public void testUpdateUser_withFutureDateOfBirth() {
+        Mockito.when(userRepository.findById(USER_ID)).thenReturn(Optional.of(createdUserWithId));
+        Mockito.when(userRepository.getUserByEmail(UPDATED_EMAIL)).thenReturn(Optional.empty());
+        Mockito.when(userRepository.save(updatedUser)).thenReturn(updatedUser);
+
+        LocalDate futureDate = LocalDate.now().plusDays(7);
+
+        userService.updateUser(USER_ID, UPDATED_EMAIL, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, futureDate);
+    }
+
+    @Test(expected = ValidationException.class)
     public void testUpdateUser_withAlreadyExistingEmail() {
         Mockito.when(userRepository.findById(USER_ID)).thenReturn(Optional.of(createdUserWithId));
         Mockito.when(userRepository.getUserByEmail(UPDATED_EMAIL)).thenReturn(Optional.of(updatedUser));
@@ -210,5 +231,10 @@ public class UserServiceTest {
     @Test
     public void testGetUsers() {
         userService.getUsers(PageRequest.of(0, 5));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetUsers_withNullPageable() {
+        userService.getUsers(null);
     }
 }
