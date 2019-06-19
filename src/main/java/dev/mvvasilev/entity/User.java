@@ -29,6 +29,9 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
+    @Column(name = "token")
+    private String token;
+
     public User() {
     }
 
@@ -80,6 +83,14 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -90,11 +101,12 @@ public class User {
                 Objects.equals(lastName, user.lastName) &&
                 Objects.equals(dateOfBirth, user.dateOfBirth) &&
                 Objects.equals(email, user.email) &&
-                Objects.equals(passwordHash, user.passwordHash);
+                Objects.equals(passwordHash, user.passwordHash) &&
+                Objects.equals(token, user.token);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, dateOfBirth, email, passwordHash);
+        return Objects.hash(id, firstName, lastName, dateOfBirth, email, passwordHash, token);
     }
 }

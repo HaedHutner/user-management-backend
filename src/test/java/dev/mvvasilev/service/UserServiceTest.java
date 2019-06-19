@@ -62,7 +62,7 @@ public class UserServiceTest {
 
     @Before
     public void init() {
-        userService = new UserService(userRepository, passwordEncoder);
+        userService = new UserService(userRepository, passwordEncoder, tokenGenerator);
 
         createdUser = new User();
         createdUser.setEmail(EMAIL);

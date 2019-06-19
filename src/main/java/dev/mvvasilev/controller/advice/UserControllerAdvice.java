@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.validation.ConstraintViolationException;
+
 /**
  * @author Miroslav Vasilev
  */
@@ -25,6 +27,12 @@ public class UserControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDTO validationException(ValidationException exception) {
         return ErrorDTO.of(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDTO constraintViolation(ConstraintViolationException e) {
+        return ErrorDTO.of(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
 }

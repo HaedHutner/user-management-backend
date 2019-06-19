@@ -1,5 +1,6 @@
 package dev.mvvasilev.controller;
 
+import dev.mvvasilev.dto.AuthenticateUserDTO;
 import dev.mvvasilev.dto.RegisterUserDTO;
 import dev.mvvasilev.dto.UpdateUserDTO;
 import dev.mvvasilev.dto.UserDTO;
@@ -15,7 +16,7 @@ import javax.validation.constraints.NotNull;
 /**
  * @author Miroslav Vasilev
  */
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 @RestController
 @CrossOrigin
 public class UserController {
@@ -27,7 +28,12 @@ public class UserController {
         this.userFacade = userFacade;
     }
 
-    @PostMapping("/create")
+    @GetMapping("/")
+    public Page<UserDTO> queryUsers(@NotNull Pageable pageable) {
+        return userFacade.getAllUsersPaginated(pageable);
+    }
+
+    @PostMapping("/")
     public long createUser(@RequestBody @Valid RegisterUserDTO registerUserDTO) {
         return userFacade.createUser(registerUserDTO);
     }
@@ -37,19 +43,19 @@ public class UserController {
         return userFacade.getUserById(userId);
     }
 
-    @PutMapping("/{userId}/update")
+    @PutMapping("/{userId}")
     public UserDTO updateUser(@PathVariable Long userId, @RequestBody @Valid UpdateUserDTO updateUserDTO) {
         return userFacade.updateUserById(userId, updateUserDTO);
     }
 
-    @DeleteMapping("/{userId}/delete")
+    @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable Long userId) {
         userFacade.deleteUserById(userId);
     }
 
-    @GetMapping("/query")
-    public Page<UserDTO> queryUsers(@NotNull Pageable pageable) {
-        return userFacade.getAllUsersPaginated(pageable);
+    @PostMapping("/authenticate")
+    public String authenticateUser(@RequestBody @Valid AuthenticateUserDTO authenticateUserDTO) {
+        return userFacade.authenticateUser(authenticateUserDTO);
     }
 
 }

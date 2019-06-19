@@ -3,6 +3,7 @@ package dev.mvvasilev.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Past;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -19,6 +20,7 @@ public class UpdateUserDTO {
     private String lastName;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @Past
     private LocalDate dateOfBirth;
 
     public UpdateUserDTO() {

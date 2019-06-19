@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -27,10 +28,13 @@ public class UserService {
 
     private BCryptPasswordEncoder passwordEncoder;
 
+    private StringKeyGenerator tokenGenerator;
+
     @Autowired
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, StringKeyGenerator tokenGenerator) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.tokenGenerator = tokenGenerator;
     }
 
     /**
@@ -45,16 +49,10 @@ public class UserService {
     public long createUser(String email, String rawPassword, String firstName, String lastName, LocalDate dateOfBirth) {
         User user = new User();
 
-        if (validateEmailDoesNotExist(email)) {
-            user.setEmail(email);
-        }
-
+        user.setEmail(email);
         user.setFirstName(firstName);
         user.setLastName(lastName);
-
-        if (validateDateOfBirth(dateOfBirth)) {
-            user.setDateOfBirth(dateOfBirth);
-        }
+        user.setDateOfBirth(dateOfBirth);
 
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
 
@@ -95,7 +93,7 @@ public class UserService {
         User user = getUser(id);
 
         // When setting the email of the user, must ensure it does not already exist in the database
-        if (!ObjectUtils.isEmpty(newEmail) && !user.getEmail().equals(newEmail) && validateEmailDoesNotExist(newEmail)) {
+        if (!ObjectUtils.isEmpty(newEmail) && !user.getEmail().equals(newEmail)) {
             user.setEmail(newEmail);
         }
 
@@ -107,7 +105,7 @@ public class UserService {
             user.setLastName(newLastName);
         }
 
-        if (newDateOfBirth != null && !user.getDateOfBirth().equals(newDateOfBirth) && validateDateOfBirth(newDateOfBirth)) {
+        if (newDateOfBirth != null && !user.getDateOfBirth().equals(newDateOfBirth)) {
             user.setDateOfBirth(newDateOfBirth);
         }
 
@@ -131,28 +129,27 @@ public class UserService {
         return userRepository.findAll(pageable);
     }
 
-    private boolean validateEmailDoesNotExist(String email) {
-        Assert.notNull(email, "email cannot be null");
-
+    public String generateUserToken(String email, String rawPassword) {
         Optional<User> userByEmail = userRepository.getUserByEmail(email);
 
-        // If a user with this email already exists, throw an exception.
-        if (userByEmail.isPresent()) {
-            throw new ValidationException("A user with this email address already exists.");
+        if (!userByEmail.isPresent()) {
+            throw new UserNotFoundException("No user with that email could be found");
         }
 
-        return true;
+        if (passwordEncoder.matches(rawPassword, userByEmail.get().getPasswordHash())) {
+            throw new ValidationException("Incorrect password");
+        }
+
+        String token = tokenGenerator.generateKey();
+
+        userByEmail.get().setToken(token);
+
+        userRepository.save(userByEmail.get());
+
+        return token;
     }
 
-    private boolean validateDateOfBirth(LocalDate date) {
-        Assert.notNull(date, "date cannot be null");
-
-        LocalDate currentDate = LocalDate.now();
-
-        if (currentDate.isBefore(date)) {
-            throw new ValidationException("The date of birth cannot be in the future.");
-        }
-
-        return true;
+    public boolean validateUserToken(String authToken) {
+        return userRepository.getUserByToken(authToken).isPresent();
     }
 }
