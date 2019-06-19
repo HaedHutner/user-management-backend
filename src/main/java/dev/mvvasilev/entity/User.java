@@ -1,14 +1,24 @@
 package dev.mvvasilev.entity;
 
+import dev.mvvasilev.GrantedAuthorityConverter;
+import dev.mvvasilev.entity.security.GrantedAuthorityImpl;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Objects;
+import java.util.Collection;
 
 /**
  * @author Miroslav Vasilev
  */
 @Entity(name = "user")
-public class User {
+@Component
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +38,10 @@ public class User {
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
+
+    @ElementCollection
+    @Convert(converter = GrantedAuthorityConverter.class)
+    private Collection<GrantedAuthorityImpl> authorities;
 
     public User() {
     }
@@ -81,20 +95,41 @@ public class User {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id) &&
-                Objects.equals(firstName, user.firstName) &&
-                Objects.equals(lastName, user.lastName) &&
-                Objects.equals(dateOfBirth, user.dateOfBirth) &&
-                Objects.equals(email, user.email) &&
-                Objects.equals(passwordHash, user.passwordHash);
+    public Collection<GrantedAuthorityImpl> getAuthorities() {
+        return authorities;
+    }
+
+    public void setAuthorities(Collection<GrantedAuthorityImpl> authorities) {
+        this.authorities = authorities;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(id, firstName, lastName, dateOfBirth, email, passwordHash);
+    public String getPassword() {
+        return passwordHash;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

@@ -7,6 +7,7 @@ import dev.mvvasilev.facade.UserFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -27,29 +28,34 @@ public class UserController {
         this.userFacade = userFacade;
     }
 
-    @PostMapping("/create")
+    @GetMapping("/")
+    @PreAuthorize("hasAuthority('GET_USERS')")
+    public Page<UserDTO> queryUsers(@NotNull Pageable pageable) {
+        return userFacade.getAllUsersPaginated(pageable);
+    }
+
+    @PostMapping("/")
+    @PreAuthorize("hasAuthority('CREATE_USER')")
     public long createUser(@RequestBody @Valid RegisterUserDTO registerUserDTO) {
         return userFacade.createUser(registerUserDTO);
     }
 
     @GetMapping("/{userId}")
+    @PreAuthorize("hasAuthority('GET_USERS')")
     public UserDTO getUser(@PathVariable Long userId) {
         return userFacade.getUserById(userId);
     }
 
-    @PutMapping("/{userId}/update")
+    @PutMapping("/{userId}")
+    @PreAuthorize("hasAuthority('UPDATE_USER')")
     public UserDTO updateUser(@PathVariable Long userId, @RequestBody @Valid UpdateUserDTO updateUserDTO) {
         return userFacade.updateUserById(userId, updateUserDTO);
     }
 
-    @DeleteMapping("/{userId}/delete")
+    @DeleteMapping("/{userId}")
+    @PreAuthorize("hasAuthority('DELETE_USER')")
     public void deleteUser(@PathVariable Long userId) {
         userFacade.deleteUserById(userId);
-    }
-
-    @GetMapping("/query")
-    public Page<UserDTO> queryUsers(@NotNull Pageable pageable) {
-        return userFacade.getAllUsersPaginated(pageable);
     }
 
 }
