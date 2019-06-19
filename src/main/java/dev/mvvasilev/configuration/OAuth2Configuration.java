@@ -29,20 +29,14 @@ public class OAuth2Configuration extends AuthorizationServerConfigurerAdapter {
 
     private UserDetailsService userDetailsService;
 
-    private PasswordEncoder passwordEncoder;
-
     @Value("{token.secret}")
     private String tokenSecret;
 
-    @Value("{token.expiration}")
-    private int tokenValidityDurationInSeconds;
-
     @Autowired
-    public OAuth2Configuration(AuthenticationManager authenticationManager, DataSource dataSource, UserDetailsServiceImpl userDetailsService, PasswordEncoder passwordEncoder) {
+    public OAuth2Configuration(AuthenticationManager authenticationManager, DataSource dataSource, UserDetailsServiceImpl userDetailsService) {
         this.authenticationManager = authenticationManager;
         this.dataSource = dataSource;
         this.userDetailsService = userDetailsService;
-        this.passwordEncoder = passwordEncoder;
     }
     @Bean
     public TokenStore tokenStore() {

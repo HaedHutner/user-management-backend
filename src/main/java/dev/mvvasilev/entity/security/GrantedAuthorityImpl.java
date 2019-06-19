@@ -5,8 +5,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.Embeddable;
 import java.util.Objects;
 
+@Embeddable
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class GrantedAuthorityImpl implements GrantedAuthority {

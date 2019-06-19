@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * @author Miroslav Vasilev
@@ -40,8 +41,9 @@ public class User implements UserDetails {
     private String passwordHash;
 
     @ElementCollection
+    @CollectionTable(name = "user_authorities", joinColumns = @JoinColumn(name = "user_id"))
     @Convert(converter = GrantedAuthorityConverter.class)
-    private Collection<GrantedAuthorityImpl> authorities;
+    private Set<GrantedAuthorityImpl> authorities;
 
     public User() {
     }
@@ -95,11 +97,11 @@ public class User implements UserDetails {
     }
 
     @Override
-    public Collection<GrantedAuthorityImpl> getAuthorities() {
+    public Set<GrantedAuthorityImpl> getAuthorities() {
         return authorities;
     }
 
-    public void setAuthorities(Collection<GrantedAuthorityImpl> authorities) {
+    public void setAuthorities(Set<GrantedAuthorityImpl> authorities) {
         this.authorities = authorities;
     }
 
