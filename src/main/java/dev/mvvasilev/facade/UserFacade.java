@@ -1,5 +1,6 @@
 package dev.mvvasilev.facade;
 
+import dev.mvvasilev.dto.AuthenticateUserDTO;
 import dev.mvvasilev.dto.RegisterUserDTO;
 import dev.mvvasilev.dto.UpdateUserDTO;
 import dev.mvvasilev.dto.UserDTO;
@@ -69,5 +70,9 @@ public class UserFacade {
         Assert.notNull(pageable, "pageable cannot be null");
 
         return userService.getUsers(pageable).map((user) -> modelMapper.map(user, UserDTO.class));
+    }
+
+    public String authenticateUser(AuthenticateUserDTO authenticateUserDTO) {
+        return userService.fetchUserJWT(authenticateUserDTO.getEmail(), authenticateUserDTO.getRawPassword());
     }
 }

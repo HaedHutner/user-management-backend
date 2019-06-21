@@ -1,8 +1,11 @@
 package dev.mvvasilev.entity;
 
+import dev.mvvasilev.security.Permission;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Miroslav Vasilev
@@ -28,6 +31,10 @@ public class User {
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
+
+    @ElementCollection
+    @CollectionTable(name = "user_permissions", joinColumns = @JoinColumn(name = "user_id"))
+    private Set<Permission> permissions;
 
     public User() {
     }
@@ -80,6 +87,14 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
+    public Set<Permission> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(Set<Permission> permissions) {
+        this.permissions = permissions;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -90,11 +105,12 @@ public class User {
                 Objects.equals(lastName, user.lastName) &&
                 Objects.equals(dateOfBirth, user.dateOfBirth) &&
                 Objects.equals(email, user.email) &&
-                Objects.equals(passwordHash, user.passwordHash);
+                Objects.equals(passwordHash, user.passwordHash) &&
+                Objects.equals(permissions, user.permissions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, dateOfBirth, email, passwordHash);
+        return Objects.hash(id, firstName, lastName, dateOfBirth, email, passwordHash, permissions);
     }
 }

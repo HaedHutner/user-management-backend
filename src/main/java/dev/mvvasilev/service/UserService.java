@@ -4,6 +4,8 @@ import dev.mvvasilev.entity.User;
 import dev.mvvasilev.exception.UserNotFoundException;
 import dev.mvvasilev.exception.ValidationException;
 import dev.mvvasilev.repository.UserRepository;
+import dev.mvvasilev.security.JwtTokenProvider;
+import dev.mvvasilev.security.Permission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +16,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Miroslav Vasilev
@@ -27,10 +31,13 @@ public class UserService {
 
     private BCryptPasswordEncoder passwordEncoder;
 
+    private JwtTokenProvider tokenProvider;
+
     @Autowired
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.tokenProvider = tokenProvider;
     }
 
     /**
@@ -57,6 +64,10 @@ public class UserService {
         }
 
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
+
+        Set<Permission> defaultPermissions = new HashSet<>();
+        defaultPermissions.add(Permission.READ_OTHER_USER);
+        user.setPermissions(defaultPermissions);
 
         user = userRepository.save(user);
 
@@ -154,5 +165,21 @@ public class UserService {
         }
 
         return true;
+    }
+
+    public String fetchUserJWT(String email, String rawPassword) {
+        Optional<User> userByEmail = userRepository.getUserByEmail(email);
+
+        if (!userByEmail.isPresent()) {
+            throw new UserNotFoundException("Could not find user with the provided email address");
+        }
+
+        User user = userByEmail.get();
+
+        if (passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
+            return tokenProvider.createToken(email, user.getPermissions());
+        } else {
+            throw new ValidationException("User could not be authenticated");
+        }
     }
 }

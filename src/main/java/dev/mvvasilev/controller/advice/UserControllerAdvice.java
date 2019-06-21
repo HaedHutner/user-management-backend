@@ -2,6 +2,7 @@ package dev.mvvasilev.controller.advice;
 
 import dev.mvvasilev.controller.UserController;
 import dev.mvvasilev.dto.ErrorDTO;
+import dev.mvvasilev.exception.TokenAuthenticationException;
 import dev.mvvasilev.exception.UserNotFoundException;
 import dev.mvvasilev.exception.ValidationException;
 import org.springframework.http.HttpStatus;
@@ -27,4 +28,9 @@ public class UserControllerAdvice {
         return ErrorDTO.of(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
+    @ExceptionHandler(TokenAuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorDTO tokenAuthenticationException(TokenAuthenticationException e) {
+        return ErrorDTO.of(HttpStatus.UNAUTHORIZED, e.getMessage());
+    }
 }
