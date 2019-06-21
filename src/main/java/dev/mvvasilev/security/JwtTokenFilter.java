@@ -3,6 +3,7 @@ package dev.mvvasilev.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.mvvasilev.dto.ErrorDTO;
 import dev.mvvasilev.exception.ValidationException;
+import dev.mvvasilev.service.AuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -19,11 +20,11 @@ import java.io.IOException;
 @Component
 public class JwtTokenFilter extends OncePerRequestFilter {
 
-    private JwtTokenProvider tokenProvider;
+    private AuthenticationService tokenProvider;
 
     private ObjectMapper objectMapper;
 
-    public JwtTokenFilter(JwtTokenProvider tokenProvider, ObjectMapper objectMapper) {
+    public JwtTokenFilter(AuthenticationService tokenProvider, ObjectMapper objectMapper) {
         this.tokenProvider = tokenProvider;
         this.objectMapper = objectMapper;
     }

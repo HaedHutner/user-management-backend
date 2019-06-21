@@ -4,7 +4,6 @@ import dev.mvvasilev.entity.User;
 import dev.mvvasilev.exception.UserNotFoundException;
 import dev.mvvasilev.exception.ValidationException;
 import dev.mvvasilev.repository.UserRepository;
-import dev.mvvasilev.security.JwtTokenProvider;
 import dev.mvvasilev.security.Permission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,13 +30,13 @@ public class UserService {
 
     private BCryptPasswordEncoder passwordEncoder;
 
-    private JwtTokenProvider tokenProvider;
+    private AuthenticationService authenticationService;
 
     @Autowired
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, AuthenticationService authenticationService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.tokenProvider = tokenProvider;
+        this.authenticationService = authenticationService;
     }
 
     /**
@@ -67,6 +66,9 @@ public class UserService {
 
         Set<Permission> defaultPermissions = new HashSet<>();
         defaultPermissions.add(Permission.READ_OTHER_USER);
+        defaultPermissions.add(Permission.READ_SELF);
+        defaultPermissions.add(Permission.UPDATE_SELF);
+        defaultPermissions.add(Permission.DELETE_SELF);
         user.setPermissions(defaultPermissions);
 
         user = userRepository.save(user);
@@ -92,6 +94,23 @@ public class UserService {
     }
 
     /**
+     * Retrieve a user from the database by their email, or throw an exception if no such user entity could be found.
+     *
+     * @param email The email to search for
+     * @return The user entity
+     * @throws UserNotFoundException If no user with the provided email could be found
+     */
+    public User getUser(String email) {
+        Optional<User> userByEmail = userRepository.getUserByEmail(email);
+
+        if (!userByEmail.isPresent()) {
+            throw new UserNotFoundException("No user with an email of '" + email + "' could be found.");
+        }
+
+        return userByEmail.get();
+    }
+
+    /**
      * Updates user information.
      * All parameters except the user id are optional.
      * If a parameter is null/empty, or equal to the same value as it currently exists on the User entity, it will not be updated.
@@ -102,9 +121,30 @@ public class UserService {
      * @param newLastName    The new last name of the user ( optional )
      * @param newDateOfBirth The new date of birth of the user ( optional )
      */
-    public User updateUser(long id, String newEmail, String newFirstName, String newLastName, LocalDate newDateOfBirth) {
+    public User updateUserById(long id, String newEmail, String newFirstName, String newLastName, LocalDate newDateOfBirth) {
         User user = getUser(id);
+        updateUser(user, newEmail, newFirstName, newLastName, newDateOfBirth);
+        return user;
+    }
 
+    /**
+     * Updates user information.
+     * All parameters except the user's old email are optional.
+     * If a parameter is null/empty, or equal to the same value as it currently exists on the User entity, it will not be updated.
+     *
+     * @param oldEmail       The old email of the user
+     * @param newEmail       The new email of the user ( optional )
+     * @param newFirstName   The new first name of the user ( optional )
+     * @param newLastName    The new last name of the user ( optional )
+     * @param newDateOfBirth The new date of birth of the user ( optional )
+     */
+    public User updateUserByEmail(String oldEmail, String newEmail, String newFirstName, String newLastName, LocalDate newDateOfBirth) {
+        User user = getUser(oldEmail);
+        updateUser(user, newEmail, newFirstName, newLastName, newDateOfBirth);
+        return user;
+    }
+
+    protected void updateUser(User user, String newEmail, String newFirstName, String newLastName, LocalDate newDateOfBirth) {
         // When setting the email of the user, must ensure it does not already exist in the database
         if (!ObjectUtils.isEmpty(newEmail) && !user.getEmail().equals(newEmail) && validateEmailDoesNotExist(newEmail)) {
             user.setEmail(newEmail);
@@ -123,8 +163,6 @@ public class UserService {
         }
 
         userRepository.save(user);
-
-        return user;
     }
 
     /**
@@ -132,14 +170,39 @@ public class UserService {
      *
      * @param userId The id of the user entity which is to be deleted
      */
-    public void deleteUser(Long userId) {
+    public void deleteUserById(Long userId) {
         userRepository.deleteUserById(userId);
+    }
+
+    /**
+     * Deletes a user by their email.
+     *
+     * @param email The email of the user entity which is to be deleted
+     */
+    public void deleteUserByEmail(String email) {
+        userRepository.deleteUserByEmail(email);
     }
 
     public Page<User> getUsers(Pageable pageable) {
         Assert.notNull(pageable, "pageable cannot be null");
 
         return userRepository.findAll(pageable);
+    }
+
+    public String fetchUserJWT(String email, String rawPassword) {
+        Optional<User> userByEmail = userRepository.getUserByEmail(email);
+
+        if (!userByEmail.isPresent()) {
+            throw new UserNotFoundException("Could not find user with the provided email address");
+        }
+
+        User user = userByEmail.get();
+
+        if (passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
+            return authenticationService.createToken(email, user.getPermissions());
+        } else {
+            throw new ValidationException("User could not be authenticated");
+        }
     }
 
     private boolean validateEmailDoesNotExist(String email) {
@@ -165,21 +228,5 @@ public class UserService {
         }
 
         return true;
-    }
-
-    public String fetchUserJWT(String email, String rawPassword) {
-        Optional<User> userByEmail = userRepository.getUserByEmail(email);
-
-        if (!userByEmail.isPresent()) {
-            throw new UserNotFoundException("Could not find user with the provided email address");
-        }
-
-        User user = userByEmail.get();
-
-        if (passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
-            return tokenProvider.createToken(email, user.getPermissions());
-        } else {
-            throw new ValidationException("User could not be authenticated");
-        }
     }
 }

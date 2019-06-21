@@ -133,7 +133,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.getUserByEmail(UPDATED_EMAIL)).thenReturn(Optional.empty());
         Mockito.when(userRepository.save(updatedUser)).thenReturn(updatedUser);
 
-        User user = userService.updateUser(USER_ID, UPDATED_EMAIL, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_DATE_OF_BIRTH);
+        User user = userService.updateUserById(USER_ID, UPDATED_EMAIL, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_DATE_OF_BIRTH);
 
         Assert.assertEquals(updatedUser, user);
     }
@@ -147,7 +147,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.getUserByEmail(UPDATED_EMAIL)).thenReturn(Optional.empty());
         Mockito.when(userRepository.save(updatedUserWithSameEmail)).thenReturn(updatedUserWithSameEmail);
 
-        User user = userService.updateUser(USER_ID, null, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_DATE_OF_BIRTH);
+        User user = userService.updateUserById(USER_ID, null, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_DATE_OF_BIRTH);
 
         Assert.assertEquals(updatedUserWithSameEmail, user);
     }
@@ -161,7 +161,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.getUserByEmail(UPDATED_EMAIL)).thenReturn(Optional.empty());
         Mockito.when(userRepository.save(updatedUserWithSameFirstName)).thenReturn(updatedUserWithSameFirstName);
 
-        User user = userService.updateUser(USER_ID, UPDATED_EMAIL, null, UPDATED_LAST_NAME, UPDATED_DATE_OF_BIRTH);
+        User user = userService.updateUserById(USER_ID, UPDATED_EMAIL, null, UPDATED_LAST_NAME, UPDATED_DATE_OF_BIRTH);
 
         Assert.assertEquals(updatedUserWithSameFirstName, user);
     }
@@ -175,7 +175,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.getUserByEmail(UPDATED_EMAIL)).thenReturn(Optional.empty());
         Mockito.when(userRepository.save(updatedUserWithSameLastName)).thenReturn(updatedUserWithSameLastName);
 
-        User user = userService.updateUser(USER_ID, UPDATED_EMAIL, UPDATED_FIRST_NAME, null, UPDATED_DATE_OF_BIRTH);
+        User user = userService.updateUserById(USER_ID, UPDATED_EMAIL, UPDATED_FIRST_NAME, null, UPDATED_DATE_OF_BIRTH);
 
         Assert.assertEquals(updatedUserWithSameLastName, user);
     }
@@ -189,7 +189,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.getUserByEmail(UPDATED_EMAIL)).thenReturn(Optional.empty());
         Mockito.when(userRepository.save(updatedUserWithSameDateOfBirth)).thenReturn(updatedUserWithSameDateOfBirth);
 
-        User user = userService.updateUser(USER_ID, UPDATED_EMAIL, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, null);
+        User user = userService.updateUserById(USER_ID, UPDATED_EMAIL, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, null);
 
         Assert.assertEquals(updatedUserWithSameDateOfBirth, user);
     }
@@ -202,7 +202,7 @@ public class UserServiceTest {
 
         LocalDate futureDate = LocalDate.now().plusDays(7);
 
-        userService.updateUser(USER_ID, UPDATED_EMAIL, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, futureDate);
+        userService.updateUserById(USER_ID, UPDATED_EMAIL, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, futureDate);
     }
 
     @Test(expected = ValidationException.class)
@@ -211,7 +211,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.getUserByEmail(UPDATED_EMAIL)).thenReturn(Optional.of(updatedUser));
         Mockito.when(userRepository.save(updatedUser)).thenReturn(updatedUser);
 
-        userService.updateUser(USER_ID, UPDATED_EMAIL, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_DATE_OF_BIRTH);
+        userService.updateUserById(USER_ID, UPDATED_EMAIL, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_DATE_OF_BIRTH);
     }
 
     @Test(expected = UserNotFoundException.class)
@@ -220,12 +220,12 @@ public class UserServiceTest {
         Mockito.when(userRepository.getUserByEmail(UPDATED_EMAIL)).thenReturn(Optional.empty());
         Mockito.when(userRepository.save(updatedUser)).thenReturn(updatedUser);
 
-        userService.updateUser(USER_ID, UPDATED_EMAIL, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_DATE_OF_BIRTH);
+        userService.updateUserById(USER_ID, UPDATED_EMAIL, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_DATE_OF_BIRTH);
     }
 
     @Test
     public void testDeleteUser() {
-        userService.deleteUser(USER_ID);
+        userService.deleteUserById(USER_ID);
     }
 
     @Test

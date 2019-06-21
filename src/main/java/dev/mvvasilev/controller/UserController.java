@@ -11,8 +11,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.security.Principal;
 
 /**
  * @author Miroslav Vasilev
@@ -30,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping("/")
-    @PreAuthorize("hasRole('UPDATE_OTHER_USER')")
+    @PreAuthorize("hasAuthority('UPDATE_OTHER_USER')")
     public Page<UserDTO> queryUsers(@NotNull Pageable pageable) {
         return userFacade.getAllUsersPaginated(pageable);
     }
@@ -46,21 +48,39 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    @PreAuthorize("hasRole('READ_OTHER_USER')")
+    @PreAuthorize("hasAuthority('READ_OTHER_USER')")
     public UserDTO getUser(@PathVariable Long userId) {
         return userFacade.getUserById(userId);
     }
 
     @PutMapping("/{userId}")
-    @PreAuthorize("hasRole('UPDATE_OTHER_USER')")
+    @PreAuthorize("hasAuthority('UPDATE_OTHER_USER')")
     public UserDTO updateUser(@PathVariable Long userId, @RequestBody @Valid UpdateUserDTO updateUserDTO) {
         return userFacade.updateUserById(userId, updateUserDTO);
     }
 
     @DeleteMapping("/{userId}")
-    @PreAuthorize("hasRole('DELETE_OTHER_USER')")
+    @PreAuthorize("hasAuthority('DELETE_OTHER_USER')")
     public void deleteUser(@PathVariable Long userId) {
         userFacade.deleteUserById(userId);
+    }
+
+    @GetMapping("/self")
+    @PreAuthorize("hasAuthority('READ_SELF')")
+    public UserDTO getSelf(HttpServletRequest request) {
+        return userFacade.getUserFromRequest(request);
+    }
+
+    @PutMapping("/self")
+    @PreAuthorize("hasAuthority('UPDATE_SELF')")
+    public UserDTO updateSelf(HttpServletRequest request, @Valid @RequestBody UpdateUserDTO updateUserDTO) {
+        return userFacade.updateUserFromRequest(request, updateUserDTO);
+    }
+
+    @DeleteMapping("/self")
+    @PreAuthorize("hasAuthority('DELETE_SELF')")
+    public void deleteSelf(HttpServletRequest request) {
+        userFacade.deleteUserFromRequest(request);
     }
 
 }

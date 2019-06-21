@@ -46,7 +46,7 @@ public class UserFacadeTest {
 
     @Before
     public void init() {
-        userFacade = new UserFacade(userService, modelMapper);
+        userFacade = new UserFacade(userService, modelMapper, tokenProvider);
 
         updateUserDTO = new UpdateUserDTO();
 
@@ -102,7 +102,7 @@ public class UserFacadeTest {
 
         Mockito.when(userService.getUser(USER_ID)).thenReturn(user);
 
-        Mockito.when(userService.updateUser(
+        Mockito.when(userService.updateUserById(
                 USER_ID,
                 updateUserDTO.getEmail(),
                 updateUserDTO.getFirstName(),

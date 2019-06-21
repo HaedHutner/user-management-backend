@@ -1,0 +1,27 @@
+POST localhost:8080/api/users/create
+Content-Type: application/json
+
+{
+  "email": "someEmail@domain.com",
+  "rawPassword": "somevalidrawpassword1234",
+  "firstName": "First",
+  "lastName": "Last",
+  "dateOfBirth": "1999-12-12"
+}
+
+###
+
+POST localhost:8080/api/users/authenticate
+Content-Type: application/json
+
+{
+  "email": "someEmail@domain.com",
+  "rawPassword": "somevalidrawpassword1234"
+}
+
+###
+
+GET localhost:8080/api/users/self
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzb21lRW1haWxAZG9tYWluLmNvbSIsInBlcm1zIjpbIlVQREFURV9TRUxGIiwiUkVBRF9PVEhFUl9VU0VSIiwiUkVBRF9TRUxGIiwiREVMRVRFX1NFTEYiXSwiaWF0IjoxNTYxMTYzOTQ0LCJleHAiOjE1NjExNjc1NDR9.SYkihhHOwrlxsxkS8dN3BFPmpaOTZUNGV641sC_xqD8
+
+###

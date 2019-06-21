@@ -1,6 +1,8 @@
-package dev.mvvasilev.security;
+package dev.mvvasilev.service;
 
 import dev.mvvasilev.exception.TokenAuthenticationException;
+import dev.mvvasilev.security.Permission;
+import dev.mvvasilev.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -19,8 +22,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-@Component
-public class JwtTokenProvider {
+@Service
+public class AuthenticationService {
 
     /**
      * THIS IS NOT A SECURE PRACTICE! For simplicity, we are storing a static key here. Ideally, in a
@@ -35,7 +38,7 @@ public class JwtTokenProvider {
     private UserDetailsService userDetailsService;
 
     @Autowired
-    public JwtTokenProvider(UserDetailsServiceImpl userDetailsService) {
+    public AuthenticationService(UserDetailsServiceImpl userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
@@ -60,6 +63,21 @@ public class JwtTokenProvider {
     }
 
     public Authentication authenticate(HttpServletRequest request) {
+        Jws<Claims> token = parseTokenFromRequest(request);
+
+        if (token != null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(token.getBody().getSubject());
+            return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        } else {
+            return null;
+        }
+    }
+
+    public String retrieveUsernameFromRequest(HttpServletRequest request) {
+        return parseTokenFromRequest(request).getBody().getSubject();
+    }
+
+    protected Jws<Claims> parseTokenFromRequest(HttpServletRequest request) {
         String token;
         Jws<Claims> parsedToken;
 
@@ -77,8 +95,6 @@ public class JwtTokenProvider {
             throw new TokenAuthenticationException("Invalid token");
         }
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(parsedToken.getBody().getSubject());
-
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        return parsedToken;
     }
 }

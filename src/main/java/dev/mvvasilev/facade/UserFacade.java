@@ -4,6 +4,7 @@ import dev.mvvasilev.dto.AuthenticateUserDTO;
 import dev.mvvasilev.dto.RegisterUserDTO;
 import dev.mvvasilev.dto.UpdateUserDTO;
 import dev.mvvasilev.dto.UserDTO;
+import dev.mvvasilev.service.AuthenticationService;
 import dev.mvvasilev.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Miroslav Vasilev
@@ -22,10 +25,13 @@ public class UserFacade {
 
     private ModelMapper modelMapper;
 
+    private AuthenticationService tokenProvider;
+
     @Autowired
-    public UserFacade(UserService userService, ModelMapper modelMapper) {
+    public UserFacade(UserService userService, ModelMapper modelMapper, AuthenticationService tokenProvider) {
         this.userService = userService;
         this.modelMapper = modelMapper;
+        this.tokenProvider = tokenProvider;
     }
 
     public long createUser(RegisterUserDTO registerUserDTO) {
@@ -51,7 +57,7 @@ public class UserFacade {
         Assert.notNull(updateUserDTO, "updateUserDTO cannot be null.");
 
         return modelMapper.map(
-                userService.updateUser(
+                userService.updateUserById(
                         userId,
                         updateUserDTO.getEmail(),
                         updateUserDTO.getFirstName(),
@@ -63,7 +69,7 @@ public class UserFacade {
     }
 
     public void deleteUserById(long userId) {
-        userService.deleteUser(userId);
+        userService.deleteUserById(userId);
     }
 
     public Page<UserDTO> getAllUsersPaginated(Pageable pageable) {
@@ -74,5 +80,29 @@ public class UserFacade {
 
     public String authenticateUser(AuthenticateUserDTO authenticateUserDTO) {
         return userService.fetchUserJWT(authenticateUserDTO.getEmail(), authenticateUserDTO.getRawPassword());
+    }
+
+    public UserDTO getUserFromRequest(HttpServletRequest request) {
+        return modelMapper.map(
+                userService.getUser(tokenProvider.retrieveUsernameFromRequest(request)),
+                UserDTO.class
+        );
+    }
+
+    public UserDTO updateUserFromRequest(HttpServletRequest request, UpdateUserDTO updateUserDTO) {
+        return modelMapper.map(
+                userService.updateUserByEmail(
+                        tokenProvider.retrieveUsernameFromRequest(request),
+                        updateUserDTO.getEmail(),
+                        updateUserDTO.getFirstName(),
+                        updateUserDTO.getLastName(),
+                        updateUserDTO.getDateOfBirth()
+                ),
+                UserDTO.class
+        );
+    }
+
+    public void deleteUserFromRequest(HttpServletRequest request) {
+        userService.deleteUserByEmail(tokenProvider.retrieveUsernameFromRequest(request));
     }
 }
