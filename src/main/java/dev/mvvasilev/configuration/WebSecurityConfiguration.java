@@ -1,6 +1,6 @@
 package dev.mvvasilev.configuration;
 
-import dev.mvvasilev.security.JwtTokenConfigurer;
+import dev.mvvasilev.security.JwtTokenFilterConfigurer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -14,10 +14,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private JwtTokenConfigurer tokenConfigurer;
+    private JwtTokenFilterConfigurer tokenConfigurer;
 
     @Autowired
-    public WebSecurityConfiguration(JwtTokenConfigurer tokenConfigurer) {
+    public WebSecurityConfiguration(JwtTokenFilterConfigurer tokenConfigurer) {
         this.tokenConfigurer = tokenConfigurer;
     }
 
