@@ -5,6 +5,7 @@ import dev.mvvasilev.exception.UserNotFoundException;
 import dev.mvvasilev.exception.ValidationException;
 import dev.mvvasilev.repository.UserRepository;
 import dev.mvvasilev.security.Permission;
+import dev.mvvasilev.util.Address;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -47,8 +48,9 @@ public class UserService {
      * @param firstName   The user's first name
      * @param lastName    The user's last name
      * @param dateOfBirth The user's date of birth
+     * @param addresses   The user's addresses
      */
-    public long createUser(String email, String rawPassword, String firstName, String lastName, LocalDate dateOfBirth) {
+    public long createUser(String email, String rawPassword, String firstName, String lastName, LocalDate dateOfBirth, Set<Address> addresses) {
         User user = new User();
 
         if (validateEmailDoesNotExist(email)) {
@@ -63,6 +65,7 @@ public class UserService {
         }
 
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
+        user.setAddresses(addresses);
 
         Set<Permission> defaultPermissions = new HashSet<>();
         defaultPermissions.add(Permission.READ_OTHER_USER);
@@ -121,9 +124,9 @@ public class UserService {
      * @param newLastName    The new last name of the user ( optional )
      * @param newDateOfBirth The new date of birth of the user ( optional )
      */
-    public User updateUserById(long id, String newEmail, String newFirstName, String newLastName, LocalDate newDateOfBirth) {
+    public User updateUserById(long id, String newEmail, String newFirstName, String newLastName, LocalDate newDateOfBirth, Set<Address> addresses) {
         User user = getUser(id);
-        updateUser(user, newEmail, newFirstName, newLastName, newDateOfBirth);
+        updateUser(user, newEmail, newFirstName, newLastName, newDateOfBirth, addresses);
         return user;
     }
 
@@ -138,13 +141,13 @@ public class UserService {
      * @param newLastName    The new last name of the user ( optional )
      * @param newDateOfBirth The new date of birth of the user ( optional )
      */
-    public User updateUserByEmail(String oldEmail, String newEmail, String newFirstName, String newLastName, LocalDate newDateOfBirth) {
+    public User updateUserByEmail(String oldEmail, String newEmail, String newFirstName, String newLastName, LocalDate newDateOfBirth, Set<Address> addresses) {
         User user = getUser(oldEmail);
-        updateUser(user, newEmail, newFirstName, newLastName, newDateOfBirth);
+        updateUser(user, newEmail, newFirstName, newLastName, newDateOfBirth, addresses);
         return user;
     }
 
-    protected void updateUser(User user, String newEmail, String newFirstName, String newLastName, LocalDate newDateOfBirth) {
+    protected void updateUser(User user, String newEmail, String newFirstName, String newLastName, LocalDate newDateOfBirth, Set<Address> addresses) {
         // When setting the email of the user, must ensure it does not already exist in the database
         if (!ObjectUtils.isEmpty(newEmail) && !user.getEmail().equals(newEmail) && validateEmailDoesNotExist(newEmail)) {
             user.setEmail(newEmail);
@@ -160,6 +163,10 @@ public class UserService {
 
         if (newDateOfBirth != null && !user.getDateOfBirth().equals(newDateOfBirth) && validateDateOfBirth(newDateOfBirth)) {
             user.setDateOfBirth(newDateOfBirth);
+        }
+
+        if (addresses != null && !addresses.isEmpty() && !addresses.equals(user.getAddresses())) {
+            user.setAddresses(addresses);
         }
 
         userRepository.save(user);

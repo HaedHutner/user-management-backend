@@ -1,11 +1,9 @@
 package dev.mvvasilev.facade;
 
-import dev.mvvasilev.dto.AuthenticateUserDTO;
-import dev.mvvasilev.dto.RegisterUserDTO;
-import dev.mvvasilev.dto.UpdateUserDTO;
-import dev.mvvasilev.dto.UserDTO;
+import dev.mvvasilev.dto.*;
 import dev.mvvasilev.service.AuthenticationService;
 import dev.mvvasilev.service.UserService;
+import dev.mvvasilev.util.Address;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.stream.Collectors;
 
 /**
  * @author Miroslav Vasilev
@@ -42,7 +41,8 @@ public class UserFacade {
                 registerUserDTO.getRawPassword(),
                 registerUserDTO.getFirstName(),
                 registerUserDTO.getLastName(),
-                registerUserDTO.getDateOfBirth()
+                registerUserDTO.getDateOfBirth(),
+                registerUserDTO.getAddresses().stream().map(dto -> modelMapper.map(dto, Address.class)).collect(Collectors.toSet())
         );
     }
 
@@ -62,7 +62,8 @@ public class UserFacade {
                         updateUserDTO.getEmail(),
                         updateUserDTO.getFirstName(),
                         updateUserDTO.getLastName(),
-                        updateUserDTO.getDateOfBirth()
+                        updateUserDTO.getDateOfBirth(),
+                        updateUserDTO.getAddresses().stream().map(dto -> modelMapper.map(dto, Address.class)).collect(Collectors.toSet())
                 ),
                 UserDTO.class
         );
@@ -96,7 +97,8 @@ public class UserFacade {
                         updateUserDTO.getEmail(),
                         updateUserDTO.getFirstName(),
                         updateUserDTO.getLastName(),
-                        updateUserDTO.getDateOfBirth()
+                        updateUserDTO.getDateOfBirth(),
+                        updateUserDTO.getAddresses().stream().map(dto -> modelMapper.map(dto, Address.class)).collect(Collectors.toSet())
                 ),
                 UserDTO.class
         );

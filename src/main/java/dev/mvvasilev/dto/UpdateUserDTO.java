@@ -3,7 +3,10 @@ package dev.mvvasilev.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -20,6 +23,10 @@ public class UpdateUserDTO {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
+
+    @NotNull
+    @Size(min = 1)
+    private List<AddressDTO> addresses;
 
     public UpdateUserDTO() {
     }
@@ -56,6 +63,14 @@ public class UpdateUserDTO {
         this.dateOfBirth = dateOfBirth;
     }
 
+    public List<AddressDTO> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<AddressDTO> addresses) {
+        this.addresses = addresses;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -64,11 +79,12 @@ public class UpdateUserDTO {
         return Objects.equals(email, that.email) &&
                 Objects.equals(firstName, that.firstName) &&
                 Objects.equals(lastName, that.lastName) &&
-                Objects.equals(dateOfBirth, that.dateOfBirth);
+                Objects.equals(dateOfBirth, that.dateOfBirth) &&
+                Objects.equals(addresses, that.addresses);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(email, firstName, lastName, dateOfBirth);
+        return Objects.hash(email, firstName, lastName, dateOfBirth, addresses);
     }
 }

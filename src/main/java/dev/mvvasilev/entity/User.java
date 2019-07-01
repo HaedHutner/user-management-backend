@@ -1,6 +1,7 @@
 package dev.mvvasilev.entity;
 
 import dev.mvvasilev.security.Permission;
+import dev.mvvasilev.util.Address;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -35,6 +36,10 @@ public class User {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_permissions", joinColumns = @JoinColumn(name = "user_id"))
     private Set<Permission> permissions;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_addresses", joinColumns = @JoinColumn(name = "user_id"))
+    private Set<Address> addresses;
 
     public User() {
     }
@@ -95,6 +100,14 @@ public class User {
         this.permissions = permissions;
     }
 
+    public Set<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(Set<Address> addresses) {
+        this.addresses = addresses;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -106,11 +119,12 @@ public class User {
                 Objects.equals(dateOfBirth, user.dateOfBirth) &&
                 Objects.equals(email, user.email) &&
                 Objects.equals(passwordHash, user.passwordHash) &&
-                Objects.equals(permissions, user.permissions);
+                Objects.equals(permissions, user.permissions) &&
+                Objects.equals(addresses, user.addresses);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, dateOfBirth, email, passwordHash, permissions);
+        return Objects.hash(id, firstName, lastName, dateOfBirth, email, passwordHash, permissions, addresses);
     }
 }

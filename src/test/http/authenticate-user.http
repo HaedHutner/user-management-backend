@@ -6,7 +6,15 @@ Content-Type: application/json
   "rawPassword": "somevalidrawpassword1234",
   "firstName": "First",
   "lastName": "Last",
-  "dateOfBirth": "1999-12-12"
+  "dateOfBirth": "1999-12-12",
+  "addresses": [
+    {
+      "country": "BG",
+      "city": "Whatever",
+      "streetAddress": "123 Something Street",
+      "postCode": "27318"
+    }
+  ]
 }
 
 ###
@@ -22,6 +30,11 @@ Content-Type: application/json
 ###
 
 GET localhost:8080/api/users/self
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzb21lRW1haWxAZG9tYWluLmNvbSIsInBlcm1zIjpbIlVQREFURV9TRUxGIiwiUkVBRF9PVEhFUl9VU0VSIiwiUkVBRF9TRUxGIiwiREVMRVRFX1NFTEYiXSwiaWF0IjoxNTYxMTYzOTQ0LCJleHAiOjE1NjExNjc1NDR9.SYkihhHOwrlxsxkS8dN3BFPmpaOTZUNGV641sC_xqD8
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzb21lRW1haWxAZG9tYWluLmNvbSIsInBlcm1zIjpbIkRFTEVURV9TRUxGIiwiUkVBRF9TRUxGIiwiUkVBRF9PVEhFUl9VU0VSIiwiVVBEQVRFX1NFTEYiXSwiaWF0IjoxNTYxNDU3OTY2LCJleHAiOjE1NjE0NjE1NjZ9.v_PVv6a4LUZtjWsgROgyGrHG4YPEosR6Apo5Mz_q7RQ
+
+###
+
+GET localhost:8080/api/users/?size=10&page=0
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzb21lRW1haWxAZG9tYWluLmNvbSIsInBlcm1zIjpbIkRFTEVURV9TRUxGIiwiUkVBRF9TRUxGIiwiUkVBRF9PVEhFUl9VU0VSIiwiVVBEQVRFX1NFTEYiXSwiaWF0IjoxNTYxNDU3OTY2LCJleHAiOjE1NjE0NjE1NjZ9.v_PVv6a4LUZtjWsgROgyGrHG4YPEosR6Apo5Mz_q7RQ
 
 ###

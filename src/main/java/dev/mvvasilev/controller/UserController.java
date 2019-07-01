@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.security.Principal;
 
 /**
  * @author Miroslav Vasilev
@@ -32,7 +31,7 @@ public class UserController {
     }
 
     @GetMapping("/")
-    @PreAuthorize("hasAuthority('UPDATE_OTHER_USER')")
+    @PreAuthorize("hasAuthority('READ_OTHER_USER')")
     public Page<UserDTO> queryUsers(@NotNull Pageable pageable) {
         return userFacade.getAllUsersPaginated(pageable);
     }

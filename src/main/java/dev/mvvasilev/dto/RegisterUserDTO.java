@@ -6,7 +6,9 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -31,6 +33,10 @@ public class RegisterUserDTO {
     @NotEmpty
     @Length(min = 8, max = 32)
     private String rawPassword;
+
+    @NotNull
+    @Size(min = 1)
+    private List<AddressDTO> addresses;
 
     public RegisterUserDTO() {
     }
@@ -75,6 +81,14 @@ public class RegisterUserDTO {
         this.rawPassword = rawPassword;
     }
 
+    public List<AddressDTO> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<AddressDTO> addresses) {
+        this.addresses = addresses;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -82,13 +96,14 @@ public class RegisterUserDTO {
         RegisterUserDTO that = (RegisterUserDTO) o;
         return Objects.equals(firstName, that.firstName) &&
                 Objects.equals(lastName, that.lastName) &&
+                Objects.equals(dateOfBirth, that.dateOfBirth) &&
                 Objects.equals(email, that.email) &&
-                Objects.equals(rawPassword, that.rawPassword);
+                Objects.equals(rawPassword, that.rawPassword) &&
+                Objects.equals(addresses, that.addresses);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, lastName, email, rawPassword);
+        return Objects.hash(firstName, lastName, dateOfBirth, email, rawPassword, addresses);
     }
-
 }
