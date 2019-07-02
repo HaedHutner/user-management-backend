@@ -46,7 +46,7 @@ public class UserFacadeTest {
 
     @Before
     public void init() {
-        userFacade = new UserFacade(userService, modelMapper, tokenProvider);
+        userFacade = new UserFacade(userService, modelMapper, tokenProvider, eventLogService);
 
         updateUserDTO = new UpdateUserDTO();
 

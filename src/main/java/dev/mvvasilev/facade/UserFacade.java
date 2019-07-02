@@ -2,6 +2,7 @@ package dev.mvvasilev.facade;
 
 import dev.mvvasilev.dto.*;
 import dev.mvvasilev.service.AuthenticationService;
+import dev.mvvasilev.service.EventLogService;
 import dev.mvvasilev.service.UserService;
 import dev.mvvasilev.util.Address;
 import org.modelmapper.ModelMapper;
@@ -26,24 +27,31 @@ public class UserFacade {
 
     private AuthenticationService tokenProvider;
 
+    private EventLogService eventLogService;
+
     @Autowired
-    public UserFacade(UserService userService, ModelMapper modelMapper, AuthenticationService tokenProvider) {
+    public UserFacade(UserService userService, ModelMapper modelMapper, AuthenticationService tokenProvider, EventLogService eventLogService) {
         this.userService = userService;
         this.modelMapper = modelMapper;
         this.tokenProvider = tokenProvider;
+        this.eventLogService = eventLogService;
     }
 
     public long createUser(RegisterUserDTO registerUserDTO) {
         Assert.notNull(registerUserDTO, "registerUserDTO cannot be null.");
 
-        return userService.createUser(
+        UserDTO result = modelMapper.map(userService.createUser(
                 registerUserDTO.getEmail(),
                 registerUserDTO.getRawPassword(),
                 registerUserDTO.getFirstName(),
                 registerUserDTO.getLastName(),
                 registerUserDTO.getDateOfBirth(),
                 registerUserDTO.getAddresses().stream().map(dto -> modelMapper.map(dto, Address.class)).collect(Collectors.toSet())
-        );
+        ), UserDTO.class);
+
+        eventLogService.submitUserCreatedEvent(result);
+
+        return result.getId();
     }
 
     public UserDTO getUserById(long userId) {

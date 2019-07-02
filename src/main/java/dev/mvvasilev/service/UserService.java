@@ -50,7 +50,7 @@ public class UserService {
      * @param dateOfBirth The user's date of birth
      * @param addresses   The user's addresses
      */
-    public long createUser(String email, String rawPassword, String firstName, String lastName, LocalDate dateOfBirth, Set<Address> addresses) {
+    public User createUser(String email, String rawPassword, String firstName, String lastName, LocalDate dateOfBirth, Set<Address> addresses) {
         User user = new User();
 
         if (validateEmailDoesNotExist(email)) {
@@ -74,9 +74,7 @@ public class UserService {
         defaultPermissions.add(Permission.DELETE_SELF);
         user.setPermissions(defaultPermissions);
 
-        user = userRepository.save(user);
-
-        return user.getId();
+        return userRepository.save(user);
     }
 
     /**
