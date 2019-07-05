@@ -1,11 +1,10 @@
 package dev.mvvasilev.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.mvvasilev.common.dto.SubmitLoggedEventDTO;
+import dev.mvvasilev.common.enums.EventType;
 import dev.mvvasilev.configuration.RabbitMQProperties;
-import dev.mvvasilev.dto.SubmitLoggedEventDTO;
 import dev.mvvasilev.dto.UserDTO;
-import dev.mvvasilev.enums.UserEventType;
 import org.modelmapper.ModelMapper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -32,22 +31,20 @@ public class EventLogService {
         this.rabbitMQProperties = rabbitMQProperties;
     }
 
+
+
     public void submitUserCreatedEvent(UserDTO userDTO) {
         SubmitLoggedEventDTO<UserDTO> dto = new SubmitLoggedEventDTO<>();
-        dto.setEventType(UserEventType.USER_CREATED);
+        dto.setEventType(EventType.USER_CREATED);
         dto.setSource(USER_MANAGER_SOURCE);
         dto.setSubmittedAt(LocalDateTime.now());
         dto.setVersion(1);
         dto.setData(userDTO);
 
-        try {
-            rabbitTemplate.convertAndSend(
-                    rabbitMQProperties.getExchange(),
-                    rabbitMQProperties.getSubmitEventRoutingKey(),
-                    objectMapper.writeValueAsString(dto)
-            );
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        rabbitTemplate.convertAndSend(
+                rabbitMQProperties.getExchange(),
+                rabbitMQProperties.getSubmitEventRoutingKey(),
+                dto
+        );
     }
 }

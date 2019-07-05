@@ -11,6 +11,7 @@ sourceCompatibility = '8'
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -24,6 +25,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
+    implementation 'com.github.HaedHutner:common-lib:1.0.2'
     implementation 'io.jsonwebtoken:jjwt:0.7.0'
     implementation 'org.springframework.security:spring-security-crypto:5.1.2.RELEASE'
     implementation 'org.modelmapper:modelmapper:2.3.0'
