@@ -2,7 +2,7 @@ POST localhost:8080/api/users/create
 Content-Type: application/json
 
 {
-  "email": "someEmail19@domain.com",
+  "email": "someEmail12@domain.com",
   "rawPassword": "somevalidrawpassword1234",
   "firstName": "First",
   "lastName": "Last",

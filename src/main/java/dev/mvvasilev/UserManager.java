@@ -1,14 +1,16 @@
 package dev.mvvasilev;
 
-import dev.mvvasilev.configuration.RabbitMQProperties;
+import dev.mvvasilev.common.config.RabbitMQProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.ComponentScan;
 
 /**
  * @author Miroslav Vasilev
  */
 @SpringBootApplication
+@ComponentScan(basePackages = "dev.mvvasilev")
 @EnableConfigurationProperties(RabbitMQProperties.class)
 public class UserManager {
 

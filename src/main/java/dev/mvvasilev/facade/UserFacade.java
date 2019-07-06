@@ -1,8 +1,9 @@
 package dev.mvvasilev.facade;
 
+import dev.mvvasilev.common.enums.EventType;
+import dev.mvvasilev.common.service.EventLogService;
 import dev.mvvasilev.dto.*;
 import dev.mvvasilev.service.AuthenticationService;
-import dev.mvvasilev.service.EventLogService;
 import dev.mvvasilev.service.UserService;
 import dev.mvvasilev.util.Address;
 import org.modelmapper.ModelMapper;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 /**
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
  */
 @Component
 public class UserFacade {
+
+    private static final String EVENT_SOURCE = "user-management-service";
 
     private UserService userService;
 
@@ -49,7 +53,7 @@ public class UserFacade {
                 registerUserDTO.getAddresses().stream().map(dto -> modelMapper.map(dto, Address.class)).collect(Collectors.toSet())
         ), UserDTO.class);
 
-        eventLogService.submitUserCreatedEvent(result);
+        eventLogService.submitEvent(EventType.USER_CREATED, EVENT_SOURCE, LocalDateTime.now(), 0, result);
 
         return result.getId();
     }
@@ -64,7 +68,7 @@ public class UserFacade {
     public UserDTO updateUserById(long userId, UpdateUserDTO updateUserDTO) {
         Assert.notNull(updateUserDTO, "updateUserDTO cannot be null.");
 
-        return modelMapper.map(
+        UserDTO result = modelMapper.map(
                 userService.updateUserById(
                         userId,
                         updateUserDTO.getEmail(),
@@ -75,6 +79,10 @@ public class UserFacade {
                 ),
                 UserDTO.class
         );
+
+        eventLogService.submitEvent(EventType.USER_UPDATED, EVENT_SOURCE, LocalDateTime.now(), 0, result);
+
+        return result;
     }
 
     public void deleteUserById(long userId) {
